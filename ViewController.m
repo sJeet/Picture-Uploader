@@ -14,20 +14,30 @@
 
 @implementation ViewController
 
+bool firstTime = YES;
+@synthesize chooseButton;
 @synthesize imagePicker;
 @synthesize chosenImage;
 @synthesize imageView;
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
 }
 
-- (void)didReceiveMemoryWarning
-{
+- (void) viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:YES];
+    if (firstTime == YES) {
+        [self pickImage:chooseButton];
+        firstTime = NO;
+    }
+}
+
+- (IBAction)doneUploading:(id)sender {
+    firstTime = YES;
+}
+
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (IBAction)pickImage:(id)sender {
@@ -40,39 +50,45 @@
 - (IBAction)uploadImage:(id)sender {
     
     NSData *imageData = UIImageJPEGRepresentation(imageView.image, 90);
-//    NSData *imageData = UIImagePNGRepresentation(imageView.image);
-    NSString *urlString = @"http://jeetshah.com/serverPHP.php";
     
-    NSDateFormatter *DateFormatter=[[NSDateFormatter alloc] init];
-    [DateFormatter setDateFormat:@"yyyyMMddhhmmss"];
-    NSString *filename = [DateFormatter stringFromDate:[NSDate date]];
-    filename = [@"sJeet" stringByAppendingString:filename];
-    filename = [filename stringByAppendingString:@".jpg"];
-    NSLog(@"%@",filename);
+    if (imageData != nil) {
+        //    NSData *imageData = UIImagePNGRepresentation(imageView.image);
+        NSString *urlString = @"http://jeetshah.com/upload.php";
     
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-    [request setURL:[NSURL URLWithString:urlString]];
-    [request setHTTPMethod:@"POST"];
+        NSDateFormatter *DateFormatter=[[NSDateFormatter alloc] init];
+        [DateFormatter setDateFormat:@"yyyyMMddhhmmss"];
+        NSString *filename = [DateFormatter stringFromDate:[NSDate date]];
+        filename = [@"sj" stringByAppendingString:filename];
+        filename = [filename stringByAppendingString:@".jpg"];
     
-    NSString *boundary = @"---------------------------14737809831466499882746641449";
-    NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
-    [request addValue:contentType forHTTPHeaderField:@"Content-Type"];
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+        [request setURL:[NSURL URLWithString:urlString]];
+        [request setHTTPMethod:@"POST"];
     
-    NSMutableData *body = [NSMutableData data];
-    [body appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
-//    [body appendData:[@"Content-Disposition: form-data; name=\"userfile\"; filename=\"file2.jpg\"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
-    [body appendData:[@"Content-Disposition: form-data; name=\"userfile\"; filename=\"" dataUsingEncoding:NSUTF8StringEncoding]];
-    [body appendData:[[NSString stringWithFormat:@"%@", filename] dataUsingEncoding:NSUTF8StringEncoding]];
-    [body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
-    [body appendData:[@"Content-Type: application/octet-stream\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
-    [body appendData:[NSData dataWithData:imageData]];
-    [body appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
-    [request setHTTPBody:body];
+        NSString *boundary = @"---------------------------14737809831466499882746641449";
+        NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
+        [request addValue:contentType forHTTPHeaderField:@"Content-Type"];
     
-    NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
-    NSString *returnString = [[NSString alloc] initWithData:returnData encoding:NSUTF8StringEncoding];
+        NSMutableData *body = [NSMutableData data];
+        [body appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+        [body appendData:[@"Content-Disposition: form-data; name=\"file\"; filename=\"" dataUsingEncoding:NSUTF8StringEncoding]];
+        [body appendData:[[NSString stringWithFormat:@"%@", filename] dataUsingEncoding:NSUTF8StringEncoding]];
+        [body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        [body appendData:[@"Content-Type: application/octet-stream\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        [body appendData:[NSData dataWithData:imageData]];
+        [body appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+        [request setHTTPBody:body];
     
-    NSLog(@"%@",returnString);
+        NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
+        NSString *returnString = [[NSString alloc] initWithData:returnData encoding:NSUTF8StringEncoding];
+    
+        NSLog(@"%@",returnString);
+        
+    } else {
+    
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Please select photo" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Choose", nil];
+        [alert show];
+    }
     
 }
 
@@ -85,4 +101,13 @@
 - (void) imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
+
+- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (buttonIndex == 0) {
+        //
+    } else {
+        [self pickImage:chooseButton];
+    }
+}
+
 @end
