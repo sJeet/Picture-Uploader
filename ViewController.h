@@ -8,7 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+@interface ViewController : UIViewController <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIAlertViewDelegate>
+
+@property (weak, nonatomic) IBOutlet UIButton *chooseButton;
+- (IBAction)doneUploading:(id)sender;
+
 
 - (IBAction)pickImage:(id)sender;
 - (IBAction)uploadImage:(id)sender;
