@@ -54,21 +54,21 @@ bool firstTime = YES;
     if (imageData != nil) {
         //    NSData *imageData = UIImagePNGRepresentation(imageView.image);
         NSString *urlString = @"http://jeetshah.com/upload.php";
-    
+        
         NSDateFormatter *DateFormatter=[[NSDateFormatter alloc] init];
         [DateFormatter setDateFormat:@"yyyyMMddhhmmss"];
         NSString *filename = [DateFormatter stringFromDate:[NSDate date]];
         filename = [@"sj" stringByAppendingString:filename];
         filename = [filename stringByAppendingString:@".jpg"];
-    
+        
         NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
         [request setURL:[NSURL URLWithString:urlString]];
         [request setHTTPMethod:@"POST"];
-    
+        
         NSString *boundary = @"---------------------------14737809831466499882746641449";
         NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
         [request addValue:contentType forHTTPHeaderField:@"Content-Type"];
-    
+        
         NSMutableData *body = [NSMutableData data];
         [body appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
         [body appendData:[@"Content-Disposition: form-data; name=\"file\"; filename=\"" dataUsingEncoding:NSUTF8StringEncoding]];
@@ -78,14 +78,14 @@ bool firstTime = YES;
         [body appendData:[NSData dataWithData:imageData]];
         [body appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
         [request setHTTPBody:body];
-    
+        
         NSData *returnData = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
         NSString *returnString = [[NSString alloc] initWithData:returnData encoding:NSUTF8StringEncoding];
-    
+        
         NSLog(@"%@",returnString);
         
     } else {
-    
+        
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Please select photo" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Choose", nil];
         [alert show];
     }
